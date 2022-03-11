@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from operator import truediv
 from pathlib import Path
+from pickle import NONE
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -132,3 +136,15 @@ LOGIN_REDIRECT_URL = '/'
 # Configure Django App for Heroku.
 import django_on_heroku
 django_on_heroku.settings(locals())
+
+REST_FRAMEWORK = {
+#    'DEFAULT_AUTHENTICATION_CLASSES': 'rest_framework.authentication.TokenAuthentication',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
+
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # default
+)
+
