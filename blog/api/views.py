@@ -1,4 +1,3 @@
-
 from urllib import response
 from blog.api.serializers import PostSerializer, CommentSerializer
 from blog.models import Post, Comment
