@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from blog.api.views import (
     PublishedPostsAPIView, 
     PostPublishingAPIView, 
@@ -8,10 +8,12 @@ from blog.api.views import (
     CommentAPIView,
     CommentsAPIView,
     ApprovedCommentsAPIView,
-    ApprovingCommentAPIView
+    ApprovingCommentAPIView,
+    CustomAuthToken,
+    PostCommentsAPIView
 )
 
-#from rest_framework.authtoken import views
+
 
 urlpatterns = [
     path("post/list/", ListAPIView.as_view()),
@@ -24,7 +26,7 @@ urlpatterns = [
     path("comment/new/", CommentsAPIView.as_view()), #creating comment
     path("approve/comment/<int:comment_id>/", ApprovingCommentAPIView.as_view()), #approving comment
     path("comments/approved/", ApprovedCommentsAPIView.as_view()), #reading comment
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    #path('api-token-auth/', views.obtain_auth_token),
+    path('api-token-auth/', CustomAuthToken.as_view()),#Adding token for the user
+    path('post/<int:post_id>/comments/', PostCommentsAPIView.as_view())
 
 ]

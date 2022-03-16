@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
-#from django.conf import settings
-#from django.db.models.signals import post_save
-#from django.dispatch import receiver
-#from rest_framework.authtoken.models import Token
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 
 class Post(models.Model):
@@ -18,7 +18,7 @@ class Post(models.Model):
         self.published_date = timezone.now()
         self.save()
 
-    def str(self):
+    def __str__(self):
         return self.title
 
     def is_published(self):
@@ -38,7 +38,7 @@ class Comment(models.Model):
         self.approved_comment = True
         self.save()
 
-    def str(self):
+    def __str__(self):
         return self.text
 
     def approved_comments(self):
@@ -46,9 +46,9 @@ class Comment(models.Model):
 
     def is_approved(self):
         """Check if the comment is approved."""
-        return  self.approved_comment is not True
+        return  self.approved_comment is True
 
-#@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-#ef create_auth_token(sender, instance=None, created=False, **kwargs):
-#    if created:
-#        Token.objects.create(user=instance)
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)

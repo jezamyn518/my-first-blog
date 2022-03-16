@@ -7,3 +7,6 @@ psycopg2-binary==2.9.3
 pytz==2021.3
 sqlparse==0.4.2
 whitenoise==6.0.0
+djangorestframework==3.13.1 # https://pypi.org/project/djangorestframework/
+django-extensions==3.1.5 # https://pypi.org/project/django-extensions/
+coverage==6.3.2 # https://pypi.org/project/coverage/
