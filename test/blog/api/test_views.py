@@ -1,13 +1,29 @@
+from unittest import expectedFailure
+from webbrowser import get
 from django.utils import timezone
 from django.contrib.auth.models import User
-from rest_framework.test import APITestCase, APIRequestFactory
+from rest_framework.test import APITestCase, APIRequestFactory, force_authenticate
 from django.test import TestCase
-from blog.api.views import PublishedPostsAPIView, ApprovedCommentsAPIView
+from blog.api.serializers import PostSerializer
+from blog.api.views import (
+     PublishedPostsAPIView, 
+    PostPublishingAPIView, 
+    UnpublishedPostsAPIView, 
+    PostAPIView, 
+    ListAPIView, 
+    CommentAPIView,
+    CommentsAPIView,
+     ApprovedCommentsAPIView,
+    ApprovingCommentAPIView,
+    CustomAuthToken,
+    PostCommentsAPIView
+
+    )
 from blog.models import Post
-from blog.models import Comment
+from blog.models import Comment 
 
+class PublishedPostsAPIViewTestCase(TestCase):
 
-class PublishedPostsAPIViewTestCase(APITestCase):
     """PublishedPostsAPIView test case."""
 
     @classmethod
@@ -73,6 +89,120 @@ class PublishedPostsAPIViewTestCase(APITestCase):
         
         self.assertEqual(response_data, expected)
         self.assertEqual(published_posts_count, response_data["count"])
+
+
+class UnpublishedPostsAPIViewTestCase(TestCase):
+    """UnpublishedPostsAPIView test case."""
+    
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Run one time class setup initialization."""
+        return super().setUpClass()
+    
+    def setUp(self) -> None:
+        """Run this setup before each test."""
+        self.url = "post/unpublished/"
+        self.view = UnpublishedPostsAPIView.as_view()
+        self.request_factory = APIRequestFactory()
+        
+    def get_posts_data(self, posts) -> list:
+        """Get posts data."""
+
+        posts_data = []
+        for post in posts:
+            if post.is_published():
+                data = {
+                    "id": post.id, 
+                    "title": post.title, 
+                    "text": post.text,
+                    "is_published": post.is_published(),
+                    }
+                posts_data.append(data)
+
+        return posts_data
+    
+    def test_get_method_returns_all_unpublished_post(self) -> None:
+        """Get method should return all unpublished post."""
+        
+        posts = Post.objects.all()
+        
+        user = User.objects.create(username="testuser")
+        
+        posts_data = self.get_posts_data(posts)
+        expected = {
+            "data": posts_data,
+            "count": len(posts_data)
+        }
+        
+        unpublished_posts_count = Post.objects.filter(published_date = None).count()
+        
+        request = self.request_factory.get(self.url)
+        force_authenticate(request, user=user, token=user.auth_token)
+        response = self.view(request)
+        
+        response_data = response.data
+        
+        self.assertEqual(response_data, expected)
+        self.assertEqual(unpublished_posts_count, response_data["count"])
+
+class ListAPIViewTestCase(TestCase):
+    """ListAPIview test case"""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Run one time class setup initialization."""
+        return super().setUpClass()
+    
+    def setUp(self) -> None:
+        """Run this setup before each test."""
+        self.url = "post/list/"
+        self.view = ListAPIView.as_view()
+        self.request_factory = APIRequestFactory()
+
+    def PostSerializer(self, Post) -> None:
+        """get the postserializer"""
+
+        PostSerializer = []
+        for serializer in PostSerializer:
+            if serializer.is_published():
+                data = {
+                    "id": serializer.id, 
+                    "title": serializer.title, 
+                    "text": serializer.text,
+                    "author": serializer.author,
+                    "is_published": serializer.is_published(),
+                    }
+                PostSerializer.append(data)
+
+        return PostSerializer
+
+    def test_get_method_returns_all_List_post(self) -> None:
+        """Get method should return all List post."""
+
+        posts = Post.objects.all()
+
+        user = User.objects.create(username="testuser")
+        
+        serializer = self.PostSerializer(posts)
+        expected = {
+            
+        }
+        
+        
+        List_posts_count = Post.objects.filter(published_date = None).count()
+        
+        request = self.request_factory.get(self.url)
+        force_authenticate(request, user=user, token=user.auth_token)
+        serializer = self.view(request)
+        
+        response_data = serializer.data
+        
+        self.assertEqual(response_data, expected, 1)
+        self.assertEqual(List_posts_count, response_data["count"])
+
+
+
+
 
 class ApprovedCommentsAPIViewTestCase(TestCase):
     """ApprovedCommentsAPIView test case."""
@@ -169,6 +299,7 @@ class ApprovedCommentsAPIViewTestCase(TestCase):
         approved_comments_count = Comment.objects.exclude(approved_comment = False).count()
         
         request = self.request_factory.get(self.url)
+        force_authenticate(request, user=user, token=user.auth_token)
         response = self.view(request)
         
         response_data = response.data

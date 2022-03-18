@@ -48,6 +48,7 @@ class Comment(models.Model):
         """Check if the comment is approved."""
         return  self.approved_comment is True
 
+
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
