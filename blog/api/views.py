@@ -117,6 +117,7 @@ class PostAPIView(PostsDataMixin, APIView):
                 "data": self.get_post_data(post)
             }
             return Response(response, 200)
+            
         except Post.DoesNotExist:
             error_response = {
                 "title": "Error",
@@ -148,12 +149,12 @@ class PostAPIView(PostsDataMixin, APIView):
             }
             return Response(error_response, status=400)
         
-    def put(self, request, *args, **kwargs):
+    def put(self, request, post_id, *args, **kwargs):
         """Update blog post on given data with id"""
+        
         try:
             data = request.data
-            post_id = data.get("id")
-            post = Post.objects.get(id=post_id)
+            post = Post.objects.get(pk=post_id)
             serializer = PostSerializer(instance=post, data=data)
             
             if serializer.is_valid():
@@ -181,10 +182,10 @@ class PostAPIView(PostsDataMixin, APIView):
             }
             return Response(error_response, status=400)
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request, post_id, *args, **kwargs):
         """Delete post in given post id or primary key, pk"""
         try:
-            post = Post.objects.get(pk=self.kwargs.get('pk')).delete()
+            post = Post.objects.get(pk=post_id).delete()
             response = {
                 "title": "Success",
                 "message": "Post deleted!"
@@ -255,6 +256,8 @@ class CommentsAPIView(CommentsDataMixin, APIView):
 class ApprovedCommentsAPIView(CommentsDataMixin, APIView):
     """API for getting the approved comments"""
     
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         """Get all published posts data."""
         comments = Comment.objects.filter(approved_comment=False)
@@ -265,12 +268,15 @@ class ApprovedCommentsAPIView(CommentsDataMixin, APIView):
             }
         
         return Response(response, status=200)
+    
+    
+    
         
 class ApprovingCommentAPIView(APIView): 
     """API for approving comments."""
     def patch(self, request, comment_id, *args, **kwargs):
-        comment = Comment.objects.get(pk=comment_id)
-        comment.approve()
+        comments = Comment.objects.get(pk=comment_id)
+        comments.approve()
         response = {
             "title": "Success",
             "message": "Comment Approved!"
@@ -278,8 +284,8 @@ class ApprovingCommentAPIView(APIView):
         return Response(response, status=200)
     
     def delete(self, request, comment_id, *args, **kwargs):
-        comment = Comment.objects.get(pk=comment_id)
-        comment.delete()
+        comments = Comment.objects.get(pk=comment_id)
+        comments.delete()
         response = {
             "title": "Success",
             "message": "Comment Removed!"
