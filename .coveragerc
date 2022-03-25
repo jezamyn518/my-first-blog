@@ -7,9 +7,10 @@ include =
     blog/api/*
 
 omit =
-    migrations
-    tests
-    manage
-    init
-    mysite
-    blog/views.py
+    *migrations*
+    *manage*
+    *init*
+    *mysite*
+    *blog/views.py*
+    *test\blog\api\test_views.py*
+    *test*
